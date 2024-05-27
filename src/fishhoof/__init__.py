@@ -1,11 +1,12 @@
 import sys
 
-from . import main2
+from . import cli, find_files
 
 __project_name__ = "fishhoof"
 
 
 def main() -> int:
-    out = main2.render_template("extended.j2")
+    args = cli.parse_arguments()
+    out: str = find_files.build_string_buffer(args)
     sys.stdout.write(out)
     return 0
