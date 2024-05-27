@@ -53,12 +53,17 @@ def filter_by_age(
     return [file for file in files if current_time - file.timestamp <= max_age_seconds]
 
 
-def build_path_list(args) -> typing.List[FileWithTimestamp]:
-    files: typing.List[pathlib.Path] = find_files(args.directories)
-    files = filter_files(files, args.exclude)
-    files = filter_by_extensions(files, args.ext)
-    if args.newer:
-        max_age_seconds = pytimeparse.parse(args.newer)
+def build_path_list(
+    directories: typing.List[str],
+    excludes: typing.List[str],
+    extensions: typing.List[str],
+    newer: str,
+) -> typing.List[FileWithTimestamp]:
+    files: typing.List[pathlib.Path] = find_files(directories)
+    files = filter_files(files, excludes)
+    files = filter_by_extensions(files, extensions)
+    if newer:
+        max_age_seconds = pytimeparse.parse(newer)
     else:
         max_age_seconds = float("inf")
     file_timestamps: typing.List[FileWithTimestamp] = [
@@ -70,7 +75,9 @@ def build_path_list(args) -> typing.List[FileWithTimestamp]:
 
 
 def build_string_buffer(args: argparse.Namespace) -> str:
-    file_timestamps = build_path_list(args)
+    file_timestamps = build_path_list(
+        args.directories, args.exclude, args.ext, args.newer
+    )
     out_buffer: io.StringIO = io.StringIO()
     file_timestamps.sort(key=lambda x: x.timestamp, reverse=False)
     for file_with_timestamp in file_timestamps:
